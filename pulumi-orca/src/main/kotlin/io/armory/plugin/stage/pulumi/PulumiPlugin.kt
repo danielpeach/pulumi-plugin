@@ -83,7 +83,13 @@ class PulumiStage(val configuration: PulumiConfig) : SimpleStage<PulumiInput> {
             return stageOutput
         }
 
-        storePulumiCredentials(configuration.accounts)
+        if (configuration.accounts == null) {
+            context.exception = SimpleStageException(SimpleStageExceptionDetails("", "AWS Credentials not provided.", listOf("Please add 'AWS_ACCESS_KEY_ID' and 'AWS_SECRET_ACCESS_KEY' under pulumi.credentials property")))
+            stageOutput.status = SimpleStageStatus.TERMINAL
+            stageOutput.context = context
+            return stageOutput
+        }
+        storePulumiCredentials(configuration.accounts!!)
 
         val workspace = createWorkspace()
         val githubPath = URI(stageInput.value.githubRepository).path
