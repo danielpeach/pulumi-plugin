@@ -16,8 +16,8 @@ class PulumiStageTest : JUnit5Minutests {
         test("pulumi should throw an error when AWS credentials are not set"){
 
             // given
-            val config = PulumiConfig(Credentials(System.getenv("AWS_ACCESS_KEY_ID"), System.getenv("AWS_SECRET_ACCESS_KEY")), Account("https://api.pulumi.com", "pul-token", "username"))
-            val input = PulumiInput("aws", "https://github.com/praneetloke/pulumi-simple-website", "master", "dev")
+            val config = PulumiConfig(version = "latest")
+            val input = PulumiInput("aws", "https://github.com/praneetloke/pulumi-simple-website", "master", "dev", credentials = null, account = null)
 
             // when
             val result = PulumiStage(config).execute(SimpleStageInput(input))
