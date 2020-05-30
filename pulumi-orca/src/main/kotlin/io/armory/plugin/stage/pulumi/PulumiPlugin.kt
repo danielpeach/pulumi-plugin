@@ -76,7 +76,7 @@ class PulumiStage(val configuration: PulumiConfig) : SimpleStage<PulumiInput> {
             else -> null
         }
 
-        if (credentials == null){
+        if (credentials == null || credentials.secretAccessKey.isNullOrEmpty() || credentials.secretKeyId.isNullOrEmpty()){
             context.exception = SimpleStageException(SimpleStageExceptionDetails("", "AWS Credentials not provided.", listOf("Please add 'AWS_ACCESS_KEY_ID' and 'AWS_SECRET_ACCESS_KEY' under pulumi.credentials property")))
             stageOutput.status = SimpleStageStatus.TERMINAL
             stageOutput.context = context

@@ -17,7 +17,7 @@ class PulumiStageTest : JUnit5Minutests {
 
             // given
             val config = PulumiConfig(Credentials(System.getenv("AWS_ACCESS_KEY_ID"), System.getenv("AWS_SECRET_ACCESS_KEY")), Account("https://api.pulumi.com", "pul-token", "username"))
-            val input = PulumiInput("aws", "https://github.com/castanedaci/pulumi-aws-typescript", "master", "dev")
+            val input = PulumiInput("aws", "https://github.com/praneetloke/pulumi-simple-website", "master", "dev")
 
             // when
             val result = PulumiStage(config).execute(SimpleStageInput(input))
