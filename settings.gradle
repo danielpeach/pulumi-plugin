@@ -6,7 +6,7 @@ pluginManagement {
   }
 }
 
-rootProject.name="pulumiStagePlugin"
+rootProject.name="pulumi-plugin"
 
 include "pulumi-orca"
 
