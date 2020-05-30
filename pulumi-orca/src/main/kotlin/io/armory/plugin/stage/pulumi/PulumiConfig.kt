@@ -12,6 +12,6 @@ import io.armory.plugin.stage.pulumi.model.Credentials
  */
 @ExtensionConfiguration("armory.pulumiStage")
 data class PulumiConfig(
-        var credentials: Credentials,
-        var accounts: Account
+        var credentials: Credentials?,
+        var accounts: Account?
 )
