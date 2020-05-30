@@ -46,4 +46,4 @@ jobs:
 
       - name: add release to plugin repo
         run: |
-          curl -XPOST -u "${{ secrets.USERNAME }}:${{ secrets.GH_PAT }}" -H "Accept: application/vnd.github.everest-preview+json" -H "Content-Type: application/json" https://api.github.com/repos/${{ github.repository_owner }}/${{ env.PLUGINS_REPOSITORY }}/dispatches --data "{\"event_type\": \"onPluginRelease\", \"client_payload\": {\"org\": \"spinnaker-plugin-examples\", \"repo\": \"${{ steps.get_project_info.outputs.PROJECT }}\", \"released\": $(cat build/distributions/plugin-info.json)}}"
+          curl -XPOST -u "${{ secrets.USERNAME }}:${{ secrets.GH_PAT }}" -H "Accept: application/vnd.github.everest-preview+json" -H "Content-Type: application/json" https://api.github.com/repos/${{ github.repository_owner }}/${{ env.PLUGINS_REPOSITORY }}/dispatches --data "{\"event_type\": \"onPluginRelease\", \"client_payload\": {\"org\": \"${{ github.repository_owner }}\", \"repo\": \"${{ steps.get_project_info.outputs.PROJECT }}\", \"released\": $(cat build/distributions/plugin-info.json)}}"
