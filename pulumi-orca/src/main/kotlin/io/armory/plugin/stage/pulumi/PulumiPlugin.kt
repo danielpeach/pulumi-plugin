@@ -20,7 +20,6 @@ import org.slf4j.LoggerFactory
 import java.io.File
 import java.io.FileOutputStream
 import java.net.URI
-import java.net.URL
 
 
 class PulumiPlugin(wrapper: PluginWrapper) : Plugin(wrapper) {
@@ -72,7 +71,7 @@ class PulumiStage(val configuration: PulumiConfig) : SimpleStage<PulumiInput> {
         val context = Context()
 
         val credentials = when (stageInput.value.cloudProvider) {
-            "aws" -> configuration.credentials
+            "aws" -> stageInput.value.credentials
             else -> null
         }
 
@@ -83,13 +82,13 @@ class PulumiStage(val configuration: PulumiConfig) : SimpleStage<PulumiInput> {
             return stageOutput
         }
 
-        if (configuration.accounts == null) {
+        if (stageInput.value.account == null) {
             context.exception = SimpleStageException(SimpleStageExceptionDetails("", "AWS Credentials not provided.", listOf("Please add 'AWS_ACCESS_KEY_ID' and 'AWS_SECRET_ACCESS_KEY' under pulumi.credentials property")))
             stageOutput.status = SimpleStageStatus.TERMINAL
             stageOutput.context = context
             return stageOutput
         }
-        storePulumiCredentials(configuration.accounts!!)
+        storePulumiCredentials(stageInput.value.account!!)
 
         val workspace = createWorkspace()
         val githubPath = URI(stageInput.value.githubRepository).path
@@ -112,7 +111,7 @@ class PulumiStage(val configuration: PulumiConfig) : SimpleStage<PulumiInput> {
         val cliStack = PulumiCli()
         cliStack.setCredentials(getCredentials(credentials))
         cliStack.setPath(workspace + "/" + repositoryInfo[1] + "-" + stageInput.value.githubBranch)
-        cliStack.selectStack(stageInput.value.pulumiStack)
+        cliStack.selectStack(stageInput.value.stackName)
 
         val cli = PulumiCli()
         cli.setCredentials(getCredentials(credentials))
@@ -145,7 +144,7 @@ class PulumiStage(val configuration: PulumiConfig) : SimpleStage<PulumiInput> {
     }
 
     private fun getCredentials(credentials: Credentials): Map<String, String?> {
-        return mapOf("AWS_ACCESS_KEY_ID" to credentials.secretKeyId,"AWS_SECRET_ACCESS_KEY" to credentials.secretAccessKey, "AWS_SESSION_TOKEN" to System.getenv("AWS_SESSION_TOKEN") )
+        return mapOf("AWS_ACCESS_KEY_ID" to credentials.secretKeyId,"AWS_SECRET_ACCESS_KEY" to credentials.secretAccessKey)
     }
 
     private fun downloadGithubRepository(repository: String, branch: String, workspace: String): Boolean {

@@ -12,7 +12,6 @@ data class PulumiCredentials(
 data class Account (
         val serverUri: String?,
         var accessToken: String?,
-        var username: String?
+        var username: String?,
+        var stackName: String?
 )
-
-

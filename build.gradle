@@ -17,7 +17,7 @@ apply plugin: "io.spinnaker.plugin.bundler"
 spinnakerBundle {
   pluginId = "Armory.PulumiPlugin"
   description = "A Pulumi plugin that provides a pulumi pipeline stage."
-  provider = "https://github.com/spinnaker-hackathon"
+  provider = "https://github.com/praneetloke"
   version = rootProject.version
 }
 
