@@ -149,7 +149,7 @@ class PulumiStage(val configuration: PulumiConfig) : SimpleStage<PulumiInput> {
 
     private fun downloadGithubRepository(repository: String, branch: String, workspace: String): Boolean {
         val repositoryUrl = String.format("https://codeload.github.com/%s/zip/%s", repository, branch)
-        return try {
+        try {
             val request = Request.Builder()
                     .url(repositoryUrl)
                     .get()
@@ -167,11 +167,11 @@ class PulumiStage(val configuration: PulumiConfig) : SimpleStage<PulumiInput> {
                 unzip(zipFile, workspace)
             }
             return true
-        }catch (e: Exception){
+        } catch (e: Exception){
             log.error("Error downloading repository: $repositoryUrl", e)
             print(e.stackTrace)
-            return false
         }
+        return false
     }
 
 
