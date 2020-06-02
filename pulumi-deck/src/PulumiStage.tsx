@@ -13,7 +13,7 @@ import {
   IStageConfigProps,
   IStageTypeConfig,
   NumberInput,
-  SingleLineString,
+  TextInput,
   Validators,
 } from '@spinnaker/core';
 
@@ -47,7 +47,7 @@ function PulumiStageConfig(props: IStageConfigProps) {
           <FormikFormField
             name="cloudProvider"
             label="Cloud Provider"
-            input={(props) => <SingleLineString {...props} />}
+            input={(props) => <TextInput {...props} />}
           />
         )}
       />
@@ -60,7 +60,7 @@ function PulumiStageConfig(props: IStageConfigProps) {
             name="account.accessToken"
             label="Pulumi Access Token"
             help={<HelpField id="armory.pulumiStage.account.accessToken" />}
-            input={(props) => <SingleLineString {...props} />}
+            input={(props) => <TextInput {...props} />}
           />
         )}
       />
@@ -72,7 +72,7 @@ function PulumiStageConfig(props: IStageConfigProps) {
           <FormikFormField
             name="account.stackName"
             label="Pulumi Stack Name"
-            input={(props) => <SingleLineString {...props} />}
+            input={(props) => <TextInput {...props} />}
           />
         )}
       />
@@ -84,7 +84,7 @@ function PulumiStageConfig(props: IStageConfigProps) {
           <FormikFormField
             name="creedentials.secretKeyId"
             label="AWS Access Key ID"
-            input={(props) => <SingleLineString {...props} />}
+            input={(props) => <TextInput {...props} />}
           />
         )}
       />
@@ -96,7 +96,7 @@ function PulumiStageConfig(props: IStageConfigProps) {
           <FormikFormField
             name="credentials.secretAccessKey"
             label="AWS Secret Access Key"
-            input={(props) => <SingleLineString {...props} />}
+            input={(props) => <TextInput {...props} />}
           />
         )}
       />
