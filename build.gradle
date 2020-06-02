@@ -14,6 +14,10 @@ plugins {
   id("org.jetbrains.kotlin.kapt").version("$kotlinVersion")
 }
 
+repositories {
+  mavenCentral()
+}
+
 spinnakerBundle {
   pluginId = "Armory.PulumiPlugin"
   description = "A Pulumi plugin that provides a pulumi pipeline stage."

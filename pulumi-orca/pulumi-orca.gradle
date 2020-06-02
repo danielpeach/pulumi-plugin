@@ -24,7 +24,7 @@ spinnakerPlugin {
 
 dependencies {
   compileOnly(group: 'org.pf4j', name: 'pf4j', version: "${pf4jVersion}")
-  compileOnly "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlinVersion"
+  compileOnly "org.jetbrains.kotlin:kotlin-stdlib-jdk8:${kotlinVersion}"
   compileOnly (group: 'com.netflix.spinnaker.kork', name: 'kork-plugins-api', version: "${korkVersion}")
   compileOnly (group: 'com.netflix.spinnaker.orca', name: 'orca-api', version: "${orcaVersion}")
 
