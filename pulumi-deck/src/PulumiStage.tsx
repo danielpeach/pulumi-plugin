@@ -23,7 +23,7 @@ export function PulumiStageExecutionDetails(props: IExecutionDetailsSectionProps
   return (
     <ExecutionDetailsSection name={props.name} current={props.current}>
       <div>
-        <p>{JSON.stringify(props)}</p>
+        <p>{JSON.stringify(props.stage.outputs)}</p>
       </div>
     </ExecutionDetailsSection>
   );
