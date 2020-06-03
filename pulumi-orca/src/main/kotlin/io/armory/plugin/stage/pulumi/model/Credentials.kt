@@ -1,4 +1,4 @@
-package io.armory.plugin.stage.pulumi.model;
+package io.armory.plugin.stage.pulumi.model
 
 /**
  * Cloud Provider credentials

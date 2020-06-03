@@ -24,6 +24,7 @@ import java.net.URI
 
 class PulumiPlugin(wrapper: PluginWrapper) : Plugin(wrapper) {
     private val logger = LoggerFactory.getLogger(PulumiPlugin::class.java)
+
     companion object HttpClient {
         val client = OkHttpClient()
     }
@@ -38,8 +39,8 @@ class PulumiPlugin(wrapper: PluginWrapper) : Plugin(wrapper) {
 }
 
 /**
- * By implementing SimpleStage, your stage is available for use in Spinnaker.
- * @see com.netflix.spinnaker.orca.api.SimpleStage
+ * A SimpleStage implementation that handles downloading the Pulumi CLI,
+ * running commands on a Pulumi app.
  */
 @Extension
 class PulumiStage(val configuration: PulumiConfig) : SimpleStage<PulumiInput> {
@@ -74,7 +75,7 @@ class PulumiStage(val configuration: PulumiConfig) : SimpleStage<PulumiInput> {
             else -> null
         }
 
-        if (credentials == null || credentials.secretAccessKey.isNullOrEmpty() || credentials.secretKeyId.isNullOrEmpty()){
+        if (credentials == null || credentials.secretAccessKey.isNullOrEmpty() || credentials.secretKeyId.isNullOrEmpty()) {
             context.exception = SimpleStageException(SimpleStageExceptionDetails("", "AWS Credentials not provided.", listOf("Please add 'AWS_ACCESS_KEY_ID' and 'AWS_SECRET_ACCESS_KEY' under pulumi.credentials property")))
             stageOutput.status = SimpleStageStatus.TERMINAL
             stageOutput.context = context
@@ -82,7 +83,7 @@ class PulumiStage(val configuration: PulumiConfig) : SimpleStage<PulumiInput> {
         }
 
         if (stageInput.value.account == null) {
-            context.exception = SimpleStageException(SimpleStageExceptionDetails("", "AWS Credentials not provided.", listOf("Please add 'AWS_ACCESS_KEY_ID' and 'AWS_SECRET_ACCESS_KEY' under pulumi.credentials property")))
+            context.exception = SimpleStageException(SimpleStageExceptionDetails("", "Pulumi account credentials not provided.", listOf("Please provide the Pulumi Access Token.")))
             stageOutput.status = SimpleStageStatus.TERMINAL
             stageOutput.context = context
             return stageOutput
@@ -100,11 +101,11 @@ class PulumiStage(val configuration: PulumiConfig) : SimpleStage<PulumiInput> {
 
         val workspace = createWorkspace()
         val githubPath = URI(stageInput.value.githubRepository).path
-        val repositoryInfo = stageInput.value.githubRepository.substring(stageInput.value.githubRepository.lastIndexOf(githubPath) +1).split("/")
+        val repositoryInfo = stageInput.value.githubRepository.substring(stageInput.value.githubRepository.lastIndexOf(githubPath) + 1).split("/")
 
         val downloaded = downloadGithubRepository(repositoryInfo.joinToString(separator = "/"), stageInput.value.githubBranch, workspace)
 
-        if (!downloaded){
+        if (!downloaded) {
             context.exception = SimpleStageException(SimpleStageExceptionDetails("", "Github repository not found.", emptyList()))
             stageOutput.status = SimpleStageStatus.TERMINAL
             stageOutput.context = context
@@ -126,7 +127,7 @@ class PulumiStage(val configuration: PulumiConfig) : SimpleStage<PulumiInput> {
         cli.setPath(workspace + "/" + repositoryInfo[1] + "-" + stageInput.value.githubBranch)
         val resultCli = cli.up()
 
-        val response = if(resultCli.exitCode != 0)  {
+        val response = if (resultCli.exitCode != 0) {
             context.exception = SimpleStageException(SimpleStageExceptionDetails("", "Pulumi up fail.", listOf(resultCli.result)))
             SimpleStageStatus.TERMINAL
         } else {
@@ -152,7 +153,7 @@ class PulumiStage(val configuration: PulumiConfig) : SimpleStage<PulumiInput> {
     }
 
     private fun getCredentials(credentials: Credentials): Map<String, String?> {
-        return mapOf("AWS_ACCESS_KEY_ID" to credentials.secretKeyId,"AWS_SECRET_ACCESS_KEY" to credentials.secretAccessKey)
+        return mapOf("AWS_ACCESS_KEY_ID" to credentials.secretKeyId, "AWS_SECRET_ACCESS_KEY" to credentials.secretAccessKey)
     }
 
     private fun downloadGithubRepository(repository: String, branch: String, workspace: String): Boolean {
@@ -164,7 +165,7 @@ class PulumiStage(val configuration: PulumiConfig) : SimpleStage<PulumiInput> {
                     .build()
 
             PulumiPlugin.client.newCall(request).execute().use { response ->
-                if (!response.isSuccessful){
+                if (!response.isSuccessful) {
                     return false
                 }
 
@@ -175,7 +176,7 @@ class PulumiStage(val configuration: PulumiConfig) : SimpleStage<PulumiInput> {
                 unzip(zipFile, workspace)
             }
             return true
-        } catch (e: Exception){
+        } catch (e: Exception) {
             log.error("Error downloading repository: $repositoryUrl", e)
             print(e.stackTrace)
         }
@@ -197,7 +198,7 @@ class PulumiStage(val configuration: PulumiConfig) : SimpleStage<PulumiInput> {
 
         val home = System.getProperty("user.home")
         val pulumiPath = "/.pulumi/credentials.json"
-        val file=File(home + pulumiPath)
+        val file = File(home + pulumiPath)
         file.writeText(Gson().toJson(pulumiCredentials))
     }
 }

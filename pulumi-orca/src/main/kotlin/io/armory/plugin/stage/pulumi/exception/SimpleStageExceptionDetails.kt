@@ -19,4 +19,4 @@ package io.armory.plugin.stage.pulumi.exception
 /**
  * Simple Stage details exception
  */
-data class SimpleStageExceptionDetails(var stackTrace: String?, var error: String?, var errors: List<String>) {}
+data class SimpleStageExceptionDetails(var stackTrace: String?, var error: String?, var errors: List<String>)

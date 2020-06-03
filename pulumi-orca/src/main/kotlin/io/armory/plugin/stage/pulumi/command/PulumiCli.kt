@@ -21,7 +21,7 @@ class PulumiCli {
                 .build()
 
         PulumiPlugin.client.newCall(request).execute().use { response ->
-            if (!response.isSuccessful()) {
+            if (!response.isSuccessful) {
                 throw Exception("Could not fetch latest version info from Pulumi.")
             }
 
@@ -34,7 +34,7 @@ class PulumiCli {
         if (version.isNullOrEmpty() || version.equals("latest")) {
             try {
                 installVersion = getLatestVersion()
-            } catch(ex: Exception) {
+            } catch (ex: Exception) {
                 CommandResponse(1, ex.message!!)
             }
         } else {
@@ -62,25 +62,25 @@ class PulumiCli {
     }
 
     fun selectStack(stack: String): CommandResponse {
-        return exec(listOf("pulumi","stack","select", stack))
+        return exec(listOf("pulumi", "stack", "select", stack))
     }
 
     fun up(): CommandResponse {
-        return exec(listOf("pulumi","up","--yes", "--non-interactive"))
+        return exec(listOf("pulumi", "up", "--yes", "--non-interactive"))
     }
 
     fun build(language: String): CommandResponse {
-        return when(language){
+        return when (language) {
             "Typescript" -> exec(listOf("npm", "install"))
             else -> CommandResponse(null, "")
         }
     }
 
-    fun setCredentials(credentials: Map<String, String?>){
+    fun setCredentials(credentials: Map<String, String?>) {
         this.credentials = credentials
     }
 
-    fun setPath(path: String){
+    fun setPath(path: String) {
         this.path = path
     }
 
