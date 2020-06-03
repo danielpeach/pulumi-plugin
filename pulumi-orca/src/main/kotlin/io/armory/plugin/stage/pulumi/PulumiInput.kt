@@ -12,6 +12,7 @@ data class PulumiInput(
         var githubRepository: String, // https://github.com/spinnaker-hackathon/pulumi-plugin
         var githubBranch: String, // master
         var stackName: String, //dev
+        var version: String,
 
         var credentials: Credentials?,
         var account: Account?

@@ -47,7 +47,7 @@ function PulumiStageConfig(props: IStageConfigProps) {
           <FormikFormField
             name="cloudProvider"
             label="Cloud Provider"
-            input={(props) => <TextInput {...props} />}
+            input={(props) => <TextInput defaultValue="aws" {...props} />}
           />
         )}
       />
@@ -97,6 +97,18 @@ function PulumiStageConfig(props: IStageConfigProps) {
             name="credentials.secretAccessKey"
             label="AWS Secret Access Key"
             input={(props) => <TextInput {...props} />}
+          />
+        )}
+      />
+      <FormikStageConfig
+        {...props}
+        validate={validate}
+        onChange={props.updateStage}
+        render={(props) => (
+          <FormikFormField
+            name="version"
+            label="Pulumi CLI Version"
+            input={(props) => <TextInput defaultValue="latest" {...props} />}
           />
         )}
       />
