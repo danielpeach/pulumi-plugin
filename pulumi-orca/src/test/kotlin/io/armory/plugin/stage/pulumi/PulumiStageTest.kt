@@ -17,7 +17,7 @@ class PulumiStageTest : JUnit5Minutests {
 
             // given
             val config = PulumiConfig(version = "latest")
-            val input = PulumiInput("aws", "https://github.com/praneetloke/pulumi-simple-website", "master", "dev", credentials = null, account = null)
+            val input = PulumiInput("aws", "https://github.com/praneetloke/pulumi-simple-website", "master", "dev", credentials = null, account = null, version = "latest")
 
             // when
             val result = PulumiStage(config).execute(SimpleStageInput(input))
