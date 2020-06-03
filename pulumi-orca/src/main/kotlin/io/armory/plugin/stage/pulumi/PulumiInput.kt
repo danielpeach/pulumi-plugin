@@ -1,6 +1,5 @@
 package io.armory.plugin.stage.pulumi
 
-import io.armory.plugin.stage.pulumi.model.Account
 import io.armory.plugin.stage.pulumi.model.Credentials
 
 /**
@@ -13,7 +12,7 @@ data class PulumiInput(
         var githubBranch: String, // master
         var stackName: String, //dev
         var version: String,
+        var accessToken: String,
 
-        var credentials: Credentials?,
-        var account: Account?
+        var credentials: Credentials?
 )

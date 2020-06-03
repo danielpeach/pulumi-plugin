@@ -1,6 +1,5 @@
 package io.armory.plugin.stage.pulumi
 
-import com.google.gson.Gson
 import com.netflix.spinnaker.orca.api.simplestage.SimpleStage
 import com.netflix.spinnaker.orca.api.simplestage.SimpleStageInput
 import com.netflix.spinnaker.orca.api.simplestage.SimpleStageOutput
@@ -8,9 +7,7 @@ import com.netflix.spinnaker.orca.api.simplestage.SimpleStageStatus
 import io.armory.plugin.stage.pulumi.command.PulumiCli
 import io.armory.plugin.stage.pulumi.exception.SimpleStageException
 import io.armory.plugin.stage.pulumi.exception.SimpleStageExceptionDetails
-import io.armory.plugin.stage.pulumi.model.Account
 import io.armory.plugin.stage.pulumi.model.Credentials
-import io.armory.plugin.stage.pulumi.model.PulumiCredentials
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import org.pf4j.Extension
@@ -82,13 +79,12 @@ class PulumiStage(val configuration: PulumiConfig) : SimpleStage<PulumiInput> {
             return stageOutput
         }
 
-        if (stageInput.value.account == null) {
+        if (stageInput.value.accessToken.isNullOrEmpty()) {
             context.exception = SimpleStageException(SimpleStageExceptionDetails("", "Pulumi account credentials not provided.", listOf("Please provide the Pulumi Access Token.")))
             stageOutput.status = SimpleStageStatus.TERMINAL
             stageOutput.context = context
             return stageOutput
         }
-        storePulumiCredentials(stageInput.value.account!!)
 
         val installCli = PulumiCli()
         val resp = installCli.install("latest")
@@ -113,17 +109,17 @@ class PulumiStage(val configuration: PulumiConfig) : SimpleStage<PulumiInput> {
         }
 
         val buildCli = PulumiCli()
-        buildCli.setCredentials(getCredentials(credentials))
+        buildCli.setCredentials(getCredentials(credentials, stageInput.value.accessToken))
         buildCli.setPath(workspace + "/" + repositoryInfo[1] + "-" + stageInput.value.githubBranch)
         buildCli.build("Typescript")
 
         val cliStack = PulumiCli()
-        cliStack.setCredentials(getCredentials(credentials))
+        cliStack.setCredentials(getCredentials(credentials, stageInput.value.accessToken))
         cliStack.setPath(workspace + "/" + repositoryInfo[1] + "-" + stageInput.value.githubBranch)
         cliStack.selectStack(stageInput.value.stackName)
 
         val cli = PulumiCli()
-        cli.setCredentials(getCredentials(credentials))
+        cli.setCredentials(getCredentials(credentials, stageInput.value.accessToken))
         cli.setPath(workspace + "/" + repositoryInfo[1] + "-" + stageInput.value.githubBranch)
         val resultCli = cli.up()
 
@@ -152,8 +148,11 @@ class PulumiStage(val configuration: PulumiConfig) : SimpleStage<PulumiInput> {
         return path
     }
 
-    private fun getCredentials(credentials: Credentials): Map<String, String?> {
-        return mapOf("AWS_ACCESS_KEY_ID" to credentials.secretKeyId, "AWS_SECRET_ACCESS_KEY" to credentials.secretAccessKey)
+    private fun getCredentials(credentials: Credentials, pulAccessToken: String): Map<String, String?> {
+        return mapOf(
+                "PULUMI_ACCESS_TOKEN" to pulAccessToken,
+                "AWS_ACCESS_KEY_ID" to credentials.secretKeyId,
+                "AWS_SECRET_ACCESS_KEY" to credentials.secretAccessKey)
     }
 
     private fun downloadGithubRepository(repository: String, branch: String, workspace: String): Boolean {
@@ -188,17 +187,5 @@ class PulumiStage(val configuration: PulumiConfig) : SimpleStage<PulumiInput> {
                 .command("unzip", zipFileName, "-d", destDir)
                 .start()
                 .waitFor()
-    }
-
-    private fun storePulumiCredentials(account: Account) {
-
-        val accessTokens = mapOf(account.serverUri to account.accessToken)
-        val accounts = mapOf(account.serverUri to account)
-        val pulumiCredentials = PulumiCredentials(account.serverUri, accessTokens, accounts)
-
-        val home = System.getProperty("user.home")
-        val pulumiPath = "/.pulumi/credentials.json"
-        val file = File(home + pulumiPath)
-        file.writeText(Gson().toJson(pulumiCredentials))
     }
 }

@@ -23,7 +23,7 @@ export function PulumiStageExecutionDetails(props: IExecutionDetailsSectionProps
   return (
     <ExecutionDetailsSection name={props.name} current={props.current}>
       <div>
-        <p>Pulumi execution complete!</p>
+        <p>{JSON.stringify(props)}</p>
       </div>
     </ExecutionDetailsSection>
   );
@@ -57,9 +57,8 @@ function PulumiStageConfig(props: IStageConfigProps) {
         onChange={props.updateStage}
         render={(props) => (
           <FormikFormField
-            name="account.accessToken"
-            label="Pulumi Access Token"
-            help={<HelpField id="armory.pulumiStage.account.accessToken" />}
+            name="githubRepository"
+            label="GitHub Repo URL"
             input={(props) => <TextInput {...props} />}
           />
         )}
@@ -70,7 +69,32 @@ function PulumiStageConfig(props: IStageConfigProps) {
         onChange={props.updateStage}
         render={(props) => (
           <FormikFormField
-            name="account.stackName"
+            name="githubBranch"
+            label="Branch"
+            input={(props) => <TextInput value="master" {...props} />}
+          />
+        )}
+      />
+      <FormikStageConfig
+        {...props}
+        validate={validate}
+        onChange={props.updateStage}
+        render={(props) => (
+          <FormikFormField
+            name="accessToken"
+            label="Pulumi Access Token"
+            help={<HelpField id="pulumiStage.accessToken" />}
+            input={(props) => <TextInput {...props} />}
+          />
+        )}
+      />
+      <FormikStageConfig
+        {...props}
+        validate={validate}
+        onChange={props.updateStage}
+        render={(props) => (
+          <FormikFormField
+            name="stackName"
             label="Pulumi Stack Name"
             input={(props) => <TextInput {...props} />}
           />
@@ -128,14 +152,14 @@ function PulumiStageConfig(props: IStageConfigProps) {
   These registries and their methods may change without warning.
 */
 export const initialize = () => {
-  HelpContentsRegistry.register('armory.pulumiStage.account.accessToken', 'The Pulumi Access Token for the Pulumi CLI to use to login non-interactively.');
+  HelpContentsRegistry.register('pulumiStage.accessToken', 'The Pulumi Access Token for the Pulumi CLI to use to login non-interactively.');
 };
 
 function validate(stageConfig: IStage) {
   const validator = new FormValidator(stageConfig);
 
   validator
-    .field('account.accessToken')
+    .field('accessToken')
     .required()
     .withValidators((value, label) => (value === '' ? `${label} must be non-empty` : undefined));
 
