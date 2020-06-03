@@ -24,6 +24,9 @@ import java.net.URI
 
 class PulumiPlugin(wrapper: PluginWrapper) : Plugin(wrapper) {
     private val logger = LoggerFactory.getLogger(PulumiPlugin::class.java)
+    companion object HttpClient {
+        val client = OkHttpClient()
+    }
 
     override fun start() {
         logger.info("PulumiPlugin.start()")
@@ -49,10 +52,6 @@ class PulumiStage(val configuration: PulumiConfig) : SimpleStage<PulumiInput> {
      */
     override fun getName(): String {
         return "pulumi"
-    }
-
-    protected open fun getHttpClient() : OkHttpClient {
-        return OkHttpClient()
     }
 
     /**
@@ -90,6 +89,15 @@ class PulumiStage(val configuration: PulumiConfig) : SimpleStage<PulumiInput> {
         }
         storePulumiCredentials(stageInput.value.account!!)
 
+        val installCli = PulumiCli()
+        val resp = installCli.install("latest")
+        if (resp.exitCode!! > 0) {
+            context.exception = SimpleStageException(SimpleStageExceptionDetails("", resp.result, emptyList()))
+            stageOutput.status = SimpleStageStatus.TERMINAL
+            stageOutput.context = context
+            return stageOutput
+        }
+
         val workspace = createWorkspace()
         val githubPath = URI(stageInput.value.githubRepository).path
         val repositoryInfo = stageInput.value.githubRepository.substring(stageInput.value.githubRepository.lastIndexOf(githubPath) +1).split("/")
@@ -97,7 +105,7 @@ class PulumiStage(val configuration: PulumiConfig) : SimpleStage<PulumiInput> {
         val downloaded = downloadGithubRepository(repositoryInfo.joinToString(separator = "/"), stageInput.value.githubBranch, workspace)
 
         if (!downloaded){
-            context.exception = SimpleStageException(SimpleStageExceptionDetails("", "Github repositoy not found.", emptyList()))
+            context.exception = SimpleStageException(SimpleStageExceptionDetails("", "Github repository not found.", emptyList()))
             stageOutput.status = SimpleStageStatus.TERMINAL
             stageOutput.context = context
             return stageOutput
@@ -155,7 +163,7 @@ class PulumiStage(val configuration: PulumiConfig) : SimpleStage<PulumiInput> {
                     .get()
                     .build()
 
-            getHttpClient().newCall(request).execute().use { response ->
+            PulumiPlugin.client.newCall(request).execute().use { response ->
                 if (!response.isSuccessful){
                     return false
                 }
@@ -173,7 +181,6 @@ class PulumiStage(val configuration: PulumiConfig) : SimpleStage<PulumiInput> {
         }
         return false
     }
-
 
     private fun unzip(zipFileName: String, destDir: String) {
         ProcessBuilder()
