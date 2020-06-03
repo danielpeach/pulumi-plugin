@@ -47,7 +47,7 @@ function PulumiStageConfig(props: IStageConfigProps) {
           <FormikFormField
             name="cloudProvider"
             label="Cloud Provider"
-            input={(props) => <TextInput defaultValue="aws" {...props} />}
+            input={(props) => <TextInput value="aws" {...props} />}
           />
         )}
       />
@@ -108,7 +108,7 @@ function PulumiStageConfig(props: IStageConfigProps) {
           <FormikFormField
             name="version"
             label="Pulumi CLI Version"
-            input={(props) => <TextInput defaultValue="latest" {...props} />}
+            input={(props) => <TextInput value="latest" {...props} />}
           />
         )}
       />
