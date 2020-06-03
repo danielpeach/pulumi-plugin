@@ -106,7 +106,7 @@ function PulumiStageConfig(props: IStageConfigProps) {
         onChange={props.updateStage}
         render={(props) => (
           <FormikFormField
-            name="creedentials.secretKeyId"
+            name="awsAccessKeyId"
             label="AWS Access Key ID"
             input={(props) => <TextInput {...props} />}
           />
@@ -118,7 +118,7 @@ function PulumiStageConfig(props: IStageConfigProps) {
         onChange={props.updateStage}
         render={(props) => (
           <FormikFormField
-            name="credentials.secretAccessKey"
+            name="awsSecretAccessKey"
             label="AWS Secret Access Key"
             input={(props) => <TextInput {...props} />}
           />
