@@ -135,7 +135,7 @@ function validate(stageConfig: IStage) {
   const validator = new FormValidator(stageConfig);
 
   validator
-    .field('accessToken')
+    .field('account.accessToken')
     .required()
     .withValidators((value, label) => (value === '' ? `${label} must be non-empty` : undefined));
 
