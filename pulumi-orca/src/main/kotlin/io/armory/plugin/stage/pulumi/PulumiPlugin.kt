@@ -58,21 +58,21 @@ class PulumiStage(val configuration: PulumiConfig) : SimpleStage<PulumiInput> {
      * strongly typed object that you have full control over.
      * The SimpleStageOutput class contains the status of the stage and any stage outputs that should be
      * put back into the pipeline context.
-     * @param stageInput<RandomWaitInput>
+     * @param stageInput<PulumiInput>
      * @return SimpleStageOutput; the status of the stage and any context that should be passed to the pipeline context
      */
-    override fun execute(stageInput: SimpleStageInput<PulumiInput>): SimpleStageOutput<Output, Context> {
+    override fun execute(stageInput: SimpleStageInput<PulumiInput>): SimpleStageOutput<*, *> {
         log.info("Started execution with inputs {}", stageInput.value)
         val stageOutput = SimpleStageOutput<Output, Context>()
         val output = Output()
         val context = Context()
 
-        val credentials = when (stageInput.value.cloudProvider) {
-            "aws" -> stageInput.value.credentials
+        val awsCredentials = when (stageInput.value.cloudProvider) {
+            "aws" -> Credentials(stageInput.value.awsAccessKeyId, stageInput.value.awsSecretAccessKey)
             else -> null
         }
 
-        if (credentials == null || credentials.secretAccessKey.isNullOrEmpty() || credentials.secretKeyId.isNullOrEmpty()) {
+        if (awsCredentials == null || awsCredentials.secretAccessKey.isNullOrEmpty() || awsCredentials.secretKeyId.isNullOrEmpty()) {
             context.exception = SimpleStageException(SimpleStageExceptionDetails("", "AWS Credentials not provided.", listOf("Please add 'AWS_ACCESS_KEY_ID' and 'AWS_SECRET_ACCESS_KEY' under pulumi.credentials property")))
             stageOutput.output = output
             stageOutput.status = SimpleStageStatus.TERMINAL
@@ -112,17 +112,17 @@ class PulumiStage(val configuration: PulumiConfig) : SimpleStage<PulumiInput> {
         }
 
         val buildCli = PulumiCli()
-        buildCli.setCredentials(getCredentials(credentials, stageInput.value.accessToken))
+        buildCli.setCredentials(getCredentials(awsCredentials, stageInput.value.accessToken))
         buildCli.setPath(workspace + "/" + repositoryInfo[1] + "-" + stageInput.value.githubBranch)
         buildCli.build("Typescript")
 
         val cliStack = PulumiCli()
-        cliStack.setCredentials(getCredentials(credentials, stageInput.value.accessToken))
+        cliStack.setCredentials(getCredentials(awsCredentials, stageInput.value.accessToken))
         cliStack.setPath(workspace + "/" + repositoryInfo[1] + "-" + stageInput.value.githubBranch)
         cliStack.selectStack(stageInput.value.stackName)
 
         val cli = PulumiCli()
-        cli.setCredentials(getCredentials(credentials, stageInput.value.accessToken))
+        cli.setCredentials(getCredentials(awsCredentials, stageInput.value.accessToken))
         cli.setPath(workspace + "/" + repositoryInfo[1] + "-" + stageInput.value.githubBranch)
         val resultCli = cli.up()
 
