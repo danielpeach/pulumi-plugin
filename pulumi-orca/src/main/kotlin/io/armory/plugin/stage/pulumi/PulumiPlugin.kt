@@ -42,7 +42,7 @@ class PulumiPlugin(wrapper: PluginWrapper) : Plugin(wrapper) {
 @Extension
 class PulumiStage(val configuration: PulumiConfig) : SimpleStage<PulumiInput> {
 
-    private val log = LoggerFactory.getLogger(SimpleStage::class.java)
+    private val log = LoggerFactory.getLogger(PulumiStage::class.java)
 
     /**
      * This sets the name of the stage
@@ -62,7 +62,7 @@ class PulumiStage(val configuration: PulumiConfig) : SimpleStage<PulumiInput> {
      * @return SimpleStageOutput; the status of the stage and any context that should be passed to the pipeline context
      */
     override fun execute(stageInput: SimpleStageInput<PulumiInput>): SimpleStageOutput<Output, Context> {
-
+        log.info("Started execution with inputs {}", stageInput.value)
         val stageOutput = SimpleStageOutput<Output, Context>()
         val output = Output()
         val context = Context()
@@ -74,6 +74,7 @@ class PulumiStage(val configuration: PulumiConfig) : SimpleStage<PulumiInput> {
 
         if (credentials == null || credentials.secretAccessKey.isNullOrEmpty() || credentials.secretKeyId.isNullOrEmpty()) {
             context.exception = SimpleStageException(SimpleStageExceptionDetails("", "AWS Credentials not provided.", listOf("Please add 'AWS_ACCESS_KEY_ID' and 'AWS_SECRET_ACCESS_KEY' under pulumi.credentials property")))
+            stageOutput.output = output
             stageOutput.status = SimpleStageStatus.TERMINAL
             stageOutput.context = context
             return stageOutput
@@ -87,11 +88,12 @@ class PulumiStage(val configuration: PulumiConfig) : SimpleStage<PulumiInput> {
         }
 
         val installCli = PulumiCli()
-        val resp = installCli.install("latest")
+        val resp = installCli.install(stageInput.value.version)
         if (resp.exitCode!! > 0) {
             context.exception = SimpleStageException(SimpleStageExceptionDetails("", resp.result, emptyList()))
             stageOutput.status = SimpleStageStatus.TERMINAL
             stageOutput.context = context
+            stageOutput.output = output
             return stageOutput
         }
 
@@ -105,6 +107,7 @@ class PulumiStage(val configuration: PulumiConfig) : SimpleStage<PulumiInput> {
             context.exception = SimpleStageException(SimpleStageExceptionDetails("", "Github repository not found.", emptyList()))
             stageOutput.status = SimpleStageStatus.TERMINAL
             stageOutput.context = context
+            stageOutput.output = output
             return stageOutput
         }
 

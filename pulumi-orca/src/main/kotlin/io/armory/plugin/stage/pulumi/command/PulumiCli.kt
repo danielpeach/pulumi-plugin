@@ -29,9 +29,10 @@ class PulumiCli {
         }
     }
 
-    fun install(version: String?): CommandResponse {
+    fun install(version: String): CommandResponse {
+        logger.info("Request to install $version version")
         var installVersion = ""
-        if (version.isNullOrEmpty() || version.equals("latest")) {
+        if (version.equals("latest")) {
             try {
                 installVersion = getLatestVersion()
             } catch (ex: Exception) {
@@ -41,32 +42,36 @@ class PulumiCli {
             installVersion = version
         }
 
+        logger.info("Downloading Pulumi CLI version v$installVersion")
         val outputFile = "$path/pulumi-v$installVersion.tar.gz"
         var resp = exec(listOf("wget", "-O", outputFile, "https://get.pulumi.com/releases/sdk/pulumi-v$installVersion-linux-x64.tar.gz"))
         if (resp.exitCode!! > 0) {
             return resp
         }
 
+        logger.info("Extract downloaded tar")
         resp = exec(listOf("tar", "zxf", outputFile))
         if (resp.exitCode!! > 0) {
             return resp
         }
 
+        logger.info("Setup directory..")
         resp = exec(listOf("mkdir", "-p", installPath))
         if (resp.exitCode!! > 0) {
             return resp
         }
 
+        logger.info("Moving downloaded binaries to $installPath")
         resp = exec(listOf("mv", "$path/pulumi/*", installPath))
         return resp
     }
 
     fun selectStack(stack: String): CommandResponse {
-        return exec(listOf("pulumi", "stack", "select", stack))
+        return exec(listOf("$installPath/pulumi", "stack", "select", stack))
     }
 
     fun up(): CommandResponse {
-        return exec(listOf("pulumi", "up", "--yes", "--non-interactive"))
+        return exec(listOf("$installPath/pulumi", "up", "--yes", "--non-interactive"))
     }
 
     fun build(language: String): CommandResponse {
