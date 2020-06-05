@@ -13,32 +13,32 @@ job:
           - name: Stack Name
             label: Stack Name
             description: The Pulumi stack name against which the command should be executed.
-            mapping: manifest.spec.template.spec.containers[0].env.PULUMI_STACK_NAME
+            mapping: manifest.spec.template.spec.containers[0].env[0].value
             defaultValue: ""
           - name: Pulumi Access Token
             label: Pulumi Access Token
             description: The Pulumi access token used to login to the CLI non-interactively.
-            mapping: manifest.spec.template.spec.containers[0].env.PULUMI_ACCESS_TOKEN
+            mapping: manifest.spec.template.spec.containers[0].env[1].value
             defaultValue: ""
           - name: Version
             label: Version
             description: The version of the Docker image to run as a container, which will contain the corresponding Pulumi CLI version.
-            mapping: manifest.spec.template.spec.image
+            mapping: manifest.spec.template.spec.containers[0].image
             defaultValue: "pulumi/pulumi:latest"
           - name: Command
-            label: The Pulumi stack name
+            label: Command
             description: The Pulumi stack name against which the command should be executed.
-            mapping: manifest.spec.template.spec.containers[0].env.COMMAND
-            defaultValue: ""
+            mapping: manifest.spec.template.spec.containers[0].env[2].value
+            defaultValue: "preview"
           - name: Command Args
             label: Command Args
             description: The args to pass to the Pulumi command.
-            mapping: manifest.spec.template.spec.containers[0].env.COMMAND_ARGS
+            mapping: manifest.spec.template.spec.containers[0].env[3].value
             defaultValue: ""
           - name: Backend URL
             label: Backend URL
             description: The backend URL to use when logging into the Pulumi CLI. Uses the Pulumi Managed Service backend, by default.
-            mapping: manifest.spec.template.spec.containers[0].env.PULUMI_BACKEND_URL
+            mapping: manifest.spec.template.spec.containers[0].env[4].value
             defaultValue: "https://api.pulumi.com"
         manifest:
           apiVersion: batch/v1
@@ -55,3 +55,14 @@ job:
                   - name: pulumi
                     image: pulumi/pulumi:latest
                     command: ["pulumi", $(COMMAND), $(COMMAND_ARGS), "-s", $(PULUMI_STACK_NAME)]
+                    env:
+                      - name: PULUMI_STACK_NAME
+                        value: fakevalue
+                      - name: PULUMI_ACCESS_TOKEN
+                        value: fakevalue
+                      - name: COMMAND
+                        value: fakevalue
+                      - name: COMMAND_ARGS
+                        value: fakevalue
+                      - name: PULUMI_BACKEND_URL
+                        value: fakevalue
