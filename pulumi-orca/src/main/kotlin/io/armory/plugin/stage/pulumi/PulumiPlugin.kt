@@ -80,7 +80,7 @@ class PulumiStage(val configuration: PulumiConfig) : SimpleStage<PulumiInput> {
             return stageOutput
         }
 
-        if (stageInput.value.accessToken.isNullOrEmpty()) {
+        if (stageInput.value.accessToken.isEmpty()) {
             context.exception = SimpleStageException(SimpleStageExceptionDetails("", "Pulumi account credentials not provided.", listOf("Please provide the Pulumi Access Token.")))
             stageOutput.status = SimpleStageStatus.TERMINAL
             stageOutput.context = context

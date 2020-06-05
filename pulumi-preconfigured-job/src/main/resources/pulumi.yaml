@@ -1,0 +1,57 @@
+job:
+  preconfigured:
+    kubernetes:
+      - label: Pulumi
+        type: pulumiRunJob
+        description: 'Run a Pulumi command using the pulumi/pulumi container.'
+        cloudProvider: kubernetes
+        account: spinnaker
+        credentials: spinnaker
+        waitForCompletion: true
+        application: pulumi
+        parameters:
+          - name: Stack Name
+            label: Stack Name
+            description: The Pulumi stack name against which the command should be executed.
+            mapping: manifest.spec.template.spec.containers[0].env.PULUMI_STACK_NAME
+            defaultValue: ""
+          - name: Pulumi Access Token
+            label: Pulumi Access Token
+            description: The Pulumi access token used to login to the CLI non-interactively.
+            mapping: manifest.spec.template.spec.containers[0].env.PULUMI_ACCESS_TOKEN
+            defaultValue: ""
+          - name: Version
+            label: Version
+            description: The version of the Docker image to run as a container, which will contain the corresponding Pulumi CLI version.
+            mapping: manifest.spec.template.spec.image
+            defaultValue: "pulumi/pulumi:latest"
+          - name: Command
+            label: The Pulumi stack name
+            description: The Pulumi stack name against which the command should be executed.
+            mapping: manifest.spec.template.spec.containers[0].env.COMMAND
+            defaultValue: ""
+          - name: Command Args
+            label: Command Args
+            description: The args to pass to the Pulumi command.
+            mapping: manifest.spec.template.spec.containers[0].env.COMMAND_ARGS
+            defaultValue: ""
+          - name: Backend URL
+            label: Backend URL
+            description: The backend URL to use when logging into the Pulumi CLI. Uses the Pulumi Managed Service backend, by default.
+            mapping: manifest.spec.template.spec.containers[0].env.PULUMI_BACKEND_URL
+            defaultValue: "https://api.pulumi.com"
+        manifest:
+          apiVersion: batch/v1
+          kind: Job
+          metadata:
+            name: run-pulumi
+            namespace: spinnaker
+          spec:
+            backoffLimit: 0
+            template:
+              spec:
+                restartPolicy: Never
+                containers:
+                  - name: pulumi
+                    image: pulumi/pulumi:latest
+                    command: ["pulumi", $(COMMAND), $(COMMAND_ARGS), "-s", $(PULUMI_STACK_NAME)]
