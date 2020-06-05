@@ -28,6 +28,11 @@ class PulumiPlugin(wrapper: PluginWrapper) : Plugin(wrapper) {
 
     override fun start() {
         logger.info("PulumiPlugin.start()")
+
+        val cli = PulumiCli()
+        cli.execBundled("version").also {
+            logger.info("Using pulumi@{}", it.result)
+        }
     }
 
     override fun stop() {
@@ -63,7 +68,9 @@ class PulumiStage(val configuration: PulumiConfig) : SimpleStage<PulumiInput> {
      */
     override fun execute(stageInput: SimpleStageInput<PulumiInput>): SimpleStageOutput<*, *> {
         log.info("Started execution with inputs {}", stageInput.value)
+
         val stageOutput = SimpleStageOutput<Output, Context>()
+
         val output = Output()
         val context = Context()
 

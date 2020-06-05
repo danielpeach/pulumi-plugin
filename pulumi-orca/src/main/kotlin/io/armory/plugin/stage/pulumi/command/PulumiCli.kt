@@ -4,6 +4,7 @@ import io.armory.plugin.stage.pulumi.PulumiPlugin
 import okhttp3.Request
 import org.slf4j.LoggerFactory
 import java.io.File
+import java.net.URL
 import java.util.concurrent.TimeUnit
 
 class PulumiCli {
@@ -92,7 +93,6 @@ class PulumiCli {
     private fun exec(command: List<String>): CommandResponse {
         val process = ProcessBuilder(command)
         process.environment().putAll(credentials)
-        process.directory(File(path))
         val resultProcess = process.start()
         val result: StringBuilder = StringBuilder()
         resultProcess.inputStream.reader(Charsets.UTF_8).use {
@@ -105,4 +105,14 @@ class PulumiCli {
         return CommandResponse(resultProcess.exitValue(), result.toString())
     }
 
+    fun execBundled(vararg command: String): CommandResponse {
+        val pulumi = javaClass.classLoader.getResource("pulumi/pulumi")?.file ?: throw Error("Cannot find Pulumi CLI")
+
+        val f = File(pulumi)
+        if (!f.canExecute()) {
+          f.setExecutable(true, false)
+        }
+
+        return exec(listOf(pulumi) + command)
+    }
 }

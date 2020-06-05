@@ -8,7 +8,7 @@ pluginManagement {
 
 rootProject.name="pulumi-plugin"
 
-include "pulumi-orca", "pulumi-deck", "pulumi-preconfigured-job"
+include "pulumi-orca", "pulumi-deck"
 
 def setBuildFile(project) {
   project.buildFileName = "${project.name}.gradle"
