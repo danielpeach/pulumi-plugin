@@ -1,4 +1,4 @@
-package com.pulumi.preconfigured.PulumiPlugin
+package com.pulumi.preconfigured
 
 import com.netflix.spinnaker.kork.plugins.api.PluginSdks
 import com.netflix.spinnaker.orca.api.preconfigured.jobs.PreconfiguredJobConfigurationProvider
